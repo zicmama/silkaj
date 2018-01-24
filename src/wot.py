@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 from network_tools import request
 from tools import get_pubkeys_from_id
-from constants import *
+from constants import NO_MATCHING_ID
 
 
 def get_sent_certifications(certs):
@@ -40,3 +40,19 @@ def received_sent_certifications(ep, id):
                     .format(id, certs_req["pubkey"][:5] + "…", certs["meta"]["timestamp"][:15] + "…",
                         len(certifications["received"]), len(certifications["sent"]),
                         tabulate(certifications, headers="keys", tablefmt="orgtbl", stralign="center")))
+
+
+def is_member(ep, pubkey, uid):
+    members = request(ep, "wot/members")["results"]
+    for member in members:
+        if (pubkey in member["pubkey"] and uid in member["uid"]):
+            return(True)
+    return(False)
+
+
+def get_pubkey_from_id(ep, uid):
+    members = request(ep, "wot/members")["results"]
+    for member in members:
+        if (uid in member["uid"]):
+            return(member["pubkey"])
+    return(NO_MATCHING_ID)
